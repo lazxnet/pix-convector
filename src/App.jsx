@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import imageCompression from 'browser-image-compression';
 
 const conversionOptions = [
@@ -21,12 +21,17 @@ function App() {
   const [convertedImage, setConvertedImage] = useState(null);
   const [compressionOptions, setCompressionOptions] = useState(defaultCompressionOptions);
   const [isConverting, setIsConverting] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setSelectedFile(event.target.files[0]);
       setConvertedImage(null);
     }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   const convertImage = async (format) => {
@@ -77,9 +82,16 @@ function App() {
                 type="file"
                 onChange={handleFileChange}
                 accept="image/*"
-                className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="hidden"
+                ref={fileInputRef}
               />
-              <button className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <div className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100">
+                {selectedFile ? selectedFile.name : 'Ningún archivo seleccionado'}
+              </div>
+              <button 
+                onClick={handleUploadClick}
+                className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                 </svg>
