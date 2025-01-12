@@ -1,8 +1,45 @@
 import { useState, useEffect } from 'react'
 import imageCompression from 'browser-image-compression'
-import { CloudIcon, Loader2, Download, XCircle, Archive } from 'lucide-react'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+
+// SVG icons as components
+const CloudIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+  </svg>
+)
+
+const Loader2 = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+  </svg>
+)
+
+const DownloadIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="7 10 12 15 17 10"></polyline>
+    <line x1="12" y1="15" x2="12" y2="3"></line>
+  </svg>
+)
+
+const XCircle = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="15" y1="9" x2="9" y2="15"></line>
+    <line x1="9" y1="9" x2="15" y2="15"></line>
+  </svg>
+)
+
+const ArchiveIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+    <line x1="16" y1="2" x2="16" y2="6"></line>
+    <line x1="8" y1="2" x2="8" y2="6"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
+  </svg>
+)
 
 function App() {
   const [isDragging, setIsDragging] = useState(false)
@@ -172,12 +209,12 @@ function App() {
           onDrop={handleDrop}
         >
           <div className="flex flex-col items-center text-center">
-            <CloudIcon className="w-16 h-16 text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Drop Images Here</h2>
-            <p className="text-gray-500 mb-4">or</p>
+            <CloudIcon />
+            <h2 className="text-xl font-semibold mb-2">Suelta imágenes aquí</h2>
+            <p className="text-gray-500 mb-4">o</p>
             <label className="cursor-pointer">
               <span className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
-                UPLOAD FILES
+              SUBIR ARCHIVOS
               </span>
               <input 
                 type="file" 
@@ -188,7 +225,7 @@ function App() {
               />
             </label>
             <p className="text-sm text-gray-500 mt-4">
-              Maximum of 20 images at a time up to 10 mb each
+            Máximo de 20 imágenes a la vez de hasta 10 mb cada una
             </p>
           </div>
         </div>
@@ -198,8 +235,8 @@ function App() {
           <div className="mt-8 space-y-4">
             {processing.map((item, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
-                <span className="text-gray-600">Processing {item.name}...</span>
+                <Loader2 />
+                <span className="text-gray-600">Procesando: {item.name}...</span>
               </div>
             ))}
           </div>
@@ -209,14 +246,14 @@ function App() {
         {results.length > 0 && (
           <div className="mt-8 space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold">Processed Images</h3>
+              <h3 className="text-xl font-semibold">Imágenes procesadas</h3>
               {hasProcessedImages && (
                 <button
                   onClick={downloadAllAsZip}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                 >
-                  <Archive className="w-4 h-4" />
-                  Download All as ZIP
+                  <ArchiveIcon />
+                  Descargar todo como ZIP
                 </button>
               )}
             </div>
@@ -227,15 +264,15 @@ function App() {
                     onClick={() => removeResult(index)}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                   >
-                    <XCircle className="w-5 h-5" />
+                    <XCircle />
                   </button>
                   
                   {result.status === 'completed' ? (
                     <>
                       <div className="flex flex-wrap gap-4 mb-4">
-                        <p className="text-sm text-gray-600">File: {result.name}</p>
+                        <p className="text-sm text-gray-600">Archivo: {result.name}</p>
                         <p className="text-sm text-gray-600">Original: {result.originalSize} MB</p>
-                        <p className="text-sm text-gray-600">Compressed: {result.compressedSize} MB</p>
+                        <p className="text-sm text-gray-600">Comprimido: {result.compressedSize} MB</p>
                       </div>
                       <img 
                         src={result.url} 
@@ -247,8 +284,8 @@ function App() {
                         download={result.name}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                       >
-                        <Download className="w-4 h-4" />
-                        Download WebP
+                        <DownloadIcon />
+                        Descargar WebP
                       </a>
                     </>
                   ) : (
@@ -265,11 +302,11 @@ function App() {
         {/* Marketing Section */}
         <div className="text-center mt-20">
           <h2 className="text-4xl font-bold mb-4">
-            Convert and Compress Your Images
+          Convierte y comprime tus imágenes
           </h2>
           <p className="text-xl text-gray-600">
-            Easily optimize and convert your images to WebP format to improve performance. 
-            <span className="font-semibold"> All free!</span>
+          Optimice y convierta fácilmente sus imágenes al formato WebP para mejorar el rendimiento. 
+            <span className="font-semibold"> Totalmente gratis!</span>
           </p>
         </div>
       </main>
