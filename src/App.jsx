@@ -10,7 +10,6 @@ import { ImagePreview } from './components/ImagePreview';
 
 const conversionOptions = [
   { format: 'jpeg', label: 'JPEG' },
-  
   { format: 'png', label: 'PNG' },
   { format: 'webp', label: 'WebP' },
   { format: 'avif', label: 'AVIF' },
@@ -101,9 +100,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-100 to-blue-200">
       <Header />
-      <main className="container mx-auto p-4 max-w-4xl">
+      <main className="flex-grow container mx-auto p-4 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
