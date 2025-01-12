@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import imageCompression from 'browser-image-compression'
 import { CloudIcon, Loader2, Download, XCircle, Archive } from 'lucide-react'
 import JSZip from 'jszip'
@@ -8,6 +8,12 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [processing, setProcessing] = useState([])
   const [results, setResults] = useState([])
+  const [hasProcessedImages, setHasProcessedImages] = useState(false)
+
+  useEffect(() => {
+    const processedImages = results.filter(result => result.status === 'completed')
+    setHasProcessedImages(processedImages.length > 1)
+  }, [results])
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -118,7 +124,10 @@ function App() {
   }
 
   const removeResult = (index) => {
-    setResults(prev => prev.filter((_, i) => i !== index))
+    setResults(prev => {
+      const newResults = prev.filter((_, i) => i !== index)
+      return newResults
+    })
   }
 
   const downloadAllAsZip = async () => {
@@ -204,7 +213,7 @@ function App() {
           <div className="mt-8 space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold">Processed Images</h3>
-              {results.length > 1 && (
+              {hasProcessedImages && (
                 <button
                   onClick={downloadAllAsZip}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
