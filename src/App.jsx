@@ -151,11 +151,8 @@ function App() {
           Pix<span className="text-purple-600">Convector</span>
         </h1>
         <nav className="flex gap-6">
-          <a href="#" className="text-gray-600 hover:text-gray-900">How to Use</a>
-          <a href="#" className="text-gray-600 hover:text-gray-900">Developer API</a>
-          <a href="#" className="text-gray-600 hover:text-gray-900">Pricing</a>
           <a 
-            href="https://github.com/vitejs/vite" 
+            href="https://github.com/lazxnet/pix-convector" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-gray-600 hover:text-gray-900"
