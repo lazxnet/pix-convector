@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import imageCompression from "browser-image-compression"
 import JSZip from "jszip"
 import FileSaver from "file-saver"
+const { saveAs } = FileSaver
 
 // SVG icons as components
 const CloudIcon = () => (
@@ -92,6 +93,23 @@ const ArchiveIcon = () => (
   </svg>
 )
 
+const CheckCircle = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+  </svg>
+)
+
 function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [processing, setProcessing] = useState([])
@@ -99,8 +117,8 @@ function App() {
   const [hasProcessedImages, setHasProcessedImages] = useState(false)
 
   useEffect(() => {
-    const processedImages = results.filter(result => result.status === 'completed')
-    setHasProcessedImages(processedImages.length > 1)
+    const processedImages = results.filter((result) => result.status === "completed")
+    setHasProcessedImages(processedImages.length > 0)
   }, [results])
 
   const handleDragOver = (e) => {
@@ -116,7 +134,7 @@ function App() {
   const handleDrop = async (e) => {
     e.preventDefault()
     setIsDragging(false)
-    
+
     const files = Array.from(e.dataTransfer.files).slice(0, 20)
     if (files.length > 0) {
       await processImages(files)
@@ -132,87 +150,77 @@ function App() {
 
   const convertToWebP = async (blob) => {
     return new Promise((resolve) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
       const img = new Image()
-      
+
       img.onload = () => {
         canvas.width = img.width
         canvas.height = img.height
         ctx.drawImage(img, 0, 0)
         canvas.toBlob((webpBlob) => {
           resolve(webpBlob)
-        }, 'image/webp')
+        }, "image/webp")
       }
-      
+
       img.src = URL.createObjectURL(blob)
     })
   }
 
   const processImages = async (files) => {
-    const newProcessing = files.map(file => ({
-      name: file.name,
-      status: 'processing'
-    }))
-    
-    setProcessing(newProcessing)
-    
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true
-    }
+    setProcessing(
+      files.map((file) => ({
+        name: file.name,
+        status: "pending",
+      })),
+    )
 
     const processedResults = []
 
     for (let i = 0; i < files.length; i++) {
       try {
+        setProcessing((prev) => prev.map((item, index) => (index === i ? { ...item, status: "processing" } : item)))
+
         // Compress image
-        const compressedFile = await imageCompression(files[i], options)
-        
+        const compressedFile = await imageCompression(files[i], {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          initialQuality: 0.7, // Asegura que siempre haya alguna compresión
+        })
+
         // Convert to WebP
         const webpBlob = await convertToWebP(compressedFile)
-        
+
         // Create object URL for preview
         const url = URL.createObjectURL(webpBlob)
-        
+
         processedResults.push({
-          name: files[i].name.replace(/\.[^/.]+$/, '') + '.webp',
+          name: files[i].name.replace(/\.[^/.]+$/, "") + ".webp",
           originalSize: (files[i].size / 1024 / 1024).toFixed(2),
           compressedSize: (webpBlob.size / 1024 / 1024).toFixed(2),
           url,
           blob: webpBlob,
-          status: 'completed'
+          status: "completed",
         })
 
-        // Update processing status
-        setProcessing(prev => 
-          prev.map((item, index) => 
-            index === i ? { ...item, status: 'completed' } : item
-          )
-        )
+        setProcessing((prev) => prev.map((item, index) => (index === i ? { ...item, status: "completed" } : item)))
+
+        // Actualizar resultados después de cada imagen procesada
+        setResults((prev) => [...prev, processedResults[processedResults.length - 1]])
       } catch (error) {
-        console.error('Error processing image:', error)
-        processedResults.push({
-          name: files[i].name,
-          status: 'error',
-          error: error.message
-        })
-
-        setProcessing(prev => 
-          prev.map((item, index) => 
-            index === i ? { ...item, status: 'error' } : item
-          )
+        console.error("Error processing image:", error)
+        setProcessing((prev) =>
+          prev.map((item, index) => (index === i ? { ...item, status: "error", error: error.message } : item)),
         )
       }
     }
 
-    setResults(prev => [...prev, ...processedResults])
     setProcessing([])
   }
 
   const removeResult = (index) => {
-    setResults(prev => {
+    setResults((prev) => {
       const newResults = prev.filter((_, i) => i !== index)
       return newResults
     })
@@ -220,15 +228,15 @@ function App() {
 
   const downloadAllAsZip = async () => {
     const zip = new JSZip()
-    
-    results.forEach(result => {
-      if (result.status === 'completed') {
+
+    results.forEach((result) => {
+      if (result.status === "completed") {
         zip.file(result.name, result.blob)
       }
     })
-    
-    const content = await zip.generateAsync({ type: 'blob' })
-    saveAs(content, 'compressed_images.zip')
+
+    const content = await zip.generateAsync({ type: "blob" })
+    saveAs(content, "compressed_images.zip")
   }
 
   return (
@@ -239,10 +247,10 @@ function App() {
           Pix<span className="text-purple-600">Convector</span>
         </h1>
         <nav className="flex gap-6">
-          <a 
-            href="https://github.com/lazxnet/pix-convector" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://github.com/lazxnet/pix-convector"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-gray-600 hover:text-gray-900"
           >
             GitHub
@@ -252,9 +260,9 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12">
-        <div 
+        <div
           className={`p-12 bg-white rounded-lg shadow-sm border-2 border-dashed transition-colors
-            ${isDragging ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
+            ${isDragging ? "border-purple-500 bg-purple-50" : "border-gray-300"}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -265,19 +273,11 @@ function App() {
             <p className="text-gray-500 mb-4">o</p>
             <label className="cursor-pointer">
               <span className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
-              SUBIR ARCHIVOS
+                SUBIR ARCHIVOS
               </span>
-              <input 
-                type="file" 
-                className="hidden" 
-                accept="image/*"
-                multiple
-                onChange={handleFileSelect}
-              />
+              <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileSelect} />
             </label>
-            <p className="text-sm text-gray-500 mt-4">
-            Máximo de 20 imágenes a la vez de hasta 10 mb cada una
-            </p>
+            <p className="text-sm text-gray-500 mt-4">Máximo de 20 imágenes a la vez de hasta 10 mb cada una</p>
           </div>
         </div>
 
@@ -286,8 +286,15 @@ function App() {
           <div className="mt-8 space-y-4">
             {processing.map((item, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                <Loader2 />
-                <span className="text-gray-600">Procesando: {item.name}...</span>
+                {item.status === "processing" && <Loader2 />}
+                {item.status === "completed" && <CheckCircle className="text-green-500" />}
+                {item.status === "error" && <XCircle className="text-red-500" />}
+                {item.status === "pending" && <span className="text-gray-600">Pendiente: {item.name}</span>}
+                <span className="text-gray-600">
+                  {item.status === "processing" && `Procesando: ${item.name}...`}
+                  {item.status === "completed" && `Completado: ${item.name}`}
+                  {item.status === "error" && `Error: ${item.name} - ${item.error}`}
+                </span>
               </div>
             ))}
           </div>
@@ -317,21 +324,21 @@ function App() {
                   >
                     <XCircle />
                   </button>
-                  
-                  {result.status === 'completed' ? (
+
+                  {result.status === "completed" ? (
                     <>
                       <div className="flex flex-wrap gap-4 mb-4">
                         <p className="text-sm text-gray-600">Archivo: {result.name}</p>
                         <p className="text-sm text-gray-600">Original: {result.originalSize} MB</p>
                         <p className="text-sm text-gray-600">Comprimido: {result.compressedSize} MB</p>
                       </div>
-                      <img 
-                        src={result.url} 
+                      <img
+                        src={result.url || "/placeholder.svg"}
                         alt={result.name}
                         className="max-h-64 rounded-lg mx-auto mb-4"
                       />
-                      <a 
-                        href={result.url} 
+                      <a
+                        href={result.url}
                         download={result.name}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                       >
@@ -352,11 +359,9 @@ function App() {
 
         {/* Marketing Section */}
         <div className="text-center mt-20">
-          <h2 className="text-4xl font-bold mb-4">
-          Convierte y comprime tus imágenes
-          </h2>
+          <h2 className="text-4xl font-bold mb-4">Convierte y comprime tus imágenes</h2>
           <p className="text-xl text-gray-600">
-          Optimice y convierta fácilmente sus imágenes al formato WebP para mejorar el rendimiento. 
+            Optimice y convierta fácilmente sus imágenes al formato WebP para mejorar el rendimiento.
             <span className="font-semibold"> Totalmente gratis!</span>
           </p>
         </div>
