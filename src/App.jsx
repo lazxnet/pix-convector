@@ -110,6 +110,23 @@ const CheckCircle = () => (
   </svg>
 )
 
+const ClockIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+)
+
 function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [processing, setProcessing] = useState([])
@@ -286,14 +303,15 @@ function App() {
           <div className="mt-8 space-y-4">
             {processing.map((item, index) => (
               <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                {item.status === "processing" && <Loader2 />}
+                {item.status === "processing" && <Loader2 className="text-blue-500" />}
                 {item.status === "completed" && <CheckCircle className="text-green-500" />}
                 {item.status === "error" && <XCircle className="text-red-500" />}
-                {item.status === "pending" && <span className="text-gray-600">Pendiente: {item.name}</span>}
+                {item.status === "pending" && <ClockIcon className="text-yellow-500" />}
                 <span className="text-gray-600">
                   {item.status === "processing" && `Procesando: ${item.name}...`}
                   {item.status === "completed" && `Completado: ${item.name}`}
                   {item.status === "error" && `Error: ${item.name} - ${item.error}`}
+                  {item.status === "pending" && `Pendiente: ${item.name}`}
                 </span>
               </div>
             ))}
