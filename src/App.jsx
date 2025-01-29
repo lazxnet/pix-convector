@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react"
-import imageCompression from "browser-image-compression"
-import JSZip from "jszip"
-import FileSaver from "file-saver"
-const { saveAs } = FileSaver
+import { useState, useEffect } from "react";
+import imageCompression from "browser-image-compression";
+import JSZip from "jszip";
+import FileSaver from "file-saver";
+const { saveAs } = FileSaver;
 
 // SVG icons as components
 const CloudIcon = () => (
@@ -19,7 +19,7 @@ const CloudIcon = () => (
   >
     <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
   </svg>
-)
+);
 
 const Loader2 = () => (
   <svg
@@ -36,7 +36,7 @@ const Loader2 = () => (
   >
     <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
   </svg>
-)
+);
 
 const DownloadIcon = () => (
   <svg
@@ -54,7 +54,7 @@ const DownloadIcon = () => (
     <polyline points="7 10 12 15 17 10"></polyline>
     <line x1="12" y1="15" x2="12" y2="3"></line>
   </svg>
-)
+);
 
 const XCircle = () => (
   <svg
@@ -72,7 +72,7 @@ const XCircle = () => (
     <line x1="15" y1="9" x2="9" y2="15"></line>
     <line x1="9" y1="9" x2="15" y2="15"></line>
   </svg>
-)
+);
 
 const ArchiveIcon = () => (
   <svg
@@ -91,7 +91,7 @@ const ArchiveIcon = () => (
     <line x1="8" y1="2" x2="8" y2="6"></line>
     <line x1="3" y1="10" x2="21" y2="10"></line>
   </svg>
-)
+);
 
 const CheckCircle = () => (
   <svg
@@ -108,7 +108,7 @@ const CheckCircle = () => (
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
     <polyline points="22 4 12 14.01 9 11.01"></polyline>
   </svg>
-)
+);
 
 const ClockIcon = () => (
   <svg
@@ -125,78 +125,85 @@ const ClockIcon = () => (
     <circle cx="12" cy="12" r="10"></circle>
     <polyline points="12 6 12 12 16 14"></polyline>
   </svg>
-)
+);
 
 function App() {
-  const [isDragging, setIsDragging] = useState(false)
-  const [processing, setProcessing] = useState([])
-  const [results, setResults] = useState([])
-  const [hasProcessedImages, setHasProcessedImages] = useState(false)
+  const [isDragging, setIsDragging] = useState(false);
+  const [processing, setProcessing] = useState([]);
+  const [results, setResults] = useState([]);
+  const [hasProcessedImages, setHasProcessedImages] = useState(false);
 
   useEffect(() => {
-    const processedImages = results.filter((result) => result.status === "completed")
-    setHasProcessedImages(processedImages.length > 0)
-  }, [results])
+    const processedImages = results.filter(
+      (result) => result.status === "completed"
+    );
+    setHasProcessedImages(processedImages.length > 0);
+  }, [results]);
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
+    e.preventDefault();
+    setIsDragging(false);
+  };
 
   const handleDrop = async (e) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files).slice(0, 20)
-    if (files.length > 0) {
-      await processImages(files)
-    }
-  }
+    const files = Array.from(e.dataTransfer.files).slice(0, 20);
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024);
+    if (validFiles.length !== files.length)
+      alert("Algunos archivos superan 10MB");
+    if (validFiles.length > 0) await processImages(validFiles);
+  };
 
   const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 20)
+    const files = Array.from(e.target.files).slice(0, 20);
     if (files.length > 0) {
-      await processImages(files)
+      await processImages(files);
     }
-  }
+  };
 
   const convertToWebP = async (blob) => {
     return new Promise((resolve) => {
-      const canvas = document.createElement("canvas")
-      const ctx = canvas.getContext("2d")
-      const img = new Image()
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
 
       img.onload = () => {
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx.drawImage(img, 0, 0)
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
         canvas.toBlob((webpBlob) => {
-          resolve(webpBlob)
-        }, "image/webp")
-      }
+          resolve(webpBlob);
+        }, "image/webp");
+      };
 
-      img.src = URL.createObjectURL(blob)
-    })
-  }
+      img.src = URL.createObjectURL(blob);
+    });
+  };
 
   const processImages = async (files) => {
     setProcessing(
       files.map((file) => ({
         name: file.name,
         status: "pending",
-      })),
-    )
+      }))
+    );
 
-    const processedResults = []
+    const processedResults = [];
 
     for (let i = 0; i < files.length; i++) {
       try {
-        setProcessing((prev) => prev.map((item, index) => (index === i ? { ...item, status: "processing" } : item)))
+        setProcessing((prev) =>
+          prev.map((item, index) =>
+            index === i ? { ...item, status: "processing" } : item
+          )
+        );
 
         // Compress image
         const compressedFile = await imageCompression(files[i], {
@@ -204,13 +211,13 @@ function App() {
           maxWidthOrHeight: 1920,
           useWebWorker: true,
           initialQuality: 0.7, // Asegura que siempre haya alguna compresión
-        })
+        });
 
         // Convert to WebP
-        const webpBlob = await convertToWebP(compressedFile)
+        const webpBlob = await convertToWebP(compressedFile);
 
         // Create object URL for preview
-        const url = URL.createObjectURL(webpBlob)
+        const url = URL.createObjectURL(webpBlob);
 
         processedResults.push({
           name: files[i].name.replace(/\.[^/.]+$/, "") + ".webp",
@@ -219,42 +226,53 @@ function App() {
           url,
           blob: webpBlob,
           status: "completed",
-        })
+        });
 
-        setProcessing((prev) => prev.map((item, index) => (index === i ? { ...item, status: "completed" } : item)))
+        setProcessing((prev) =>
+          prev.map((item, index) =>
+            index === i ? { ...item, status: "completed" } : item
+          )
+        );
 
         // Actualizar resultados después de cada imagen procesada
-        setResults((prev) => [...prev, processedResults[processedResults.length - 1]])
+        setResults((prev) => [
+          ...prev,
+          processedResults[processedResults.length - 1],
+        ]);
       } catch (error) {
-        console.error("Error processing image:", error)
+        console.error("Error processing image:", error);
         setProcessing((prev) =>
-          prev.map((item, index) => (index === i ? { ...item, status: "error", error: error.message } : item)),
-        )
+          prev.map((item, index) =>
+            index === i
+              ? { ...item, status: "error", error: error.message }
+              : item
+          )
+        );
       }
     }
 
-    setProcessing([])
-  }
+    setProcessing([]);
+  };
 
   const removeResult = (index) => {
     setResults((prev) => {
-      const newResults = prev.filter((_, i) => i !== index)
-      return newResults
-    })
-  }
+      const newResults = prev.filter((_, i) => i !== index);
+      return newResults;
+    });
+  };
 
   const downloadAllAsZip = async () => {
-    const zip = new JSZip()
+    const zip = new JSZip();
 
     results.forEach((result) => {
       if (result.status === "completed") {
-        zip.file(result.name, result.blob)
+        zip.file(result.name, result.blob);
       }
-    })
+    });
 
-    const content = await zip.generateAsync({ type: "blob" })
-    saveAs(content, "compressed_images.zip")
-  }
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, "compressed_images.zip");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -279,7 +297,9 @@ function App() {
       <main className="max-w-4xl mx-auto px-4 py-12">
         <div
           className={`p-12 bg-white rounded-lg shadow-sm border-2 border-dashed transition-colors
-            ${isDragging ? "border-purple-500 bg-purple-50" : "border-gray-300"}`}
+            ${
+              isDragging ? "border-purple-500 bg-purple-50" : "border-gray-300"
+            }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -292,9 +312,17 @@ function App() {
               <span className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
                 SUBIR ARCHIVOS
               </span>
-              <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileSelect} />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+              />
             </label>
-            <p className="text-sm text-gray-500 mt-4">Máximo de 20 imágenes a la vez de hasta 10 mb cada una</p>
+            <p className="text-sm text-gray-500 mt-4">
+              Máximo de 20 imágenes a la vez de hasta 10 mb cada una
+            </p>
           </div>
         </div>
 
@@ -302,15 +330,28 @@ function App() {
         {processing.length > 0 && (
           <div className="mt-8 space-y-4">
             {processing.map((item, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                {item.status === "processing" && <Loader2 className="text-blue-500" />}
-                {item.status === "completed" && <CheckCircle className="text-green-500" />}
-                {item.status === "error" && <XCircle className="text-red-500" />}
-                {item.status === "pending" && <ClockIcon className="text-yellow-500" />}
+              <div
+                key={index}
+                className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
+              >
+                {item.status === "processing" && (
+                  <Loader2 className="text-blue-500" />
+                )}
+                {item.status === "completed" && (
+                  <CheckCircle className="text-green-500" />
+                )}
+                {item.status === "error" && (
+                  <XCircle className="text-red-500" />
+                )}
+                {item.status === "pending" && (
+                  <ClockIcon className="text-yellow-500" />
+                )}
                 <span className="text-gray-600">
-                  {item.status === "processing" && `Procesando: ${item.name}...`}
+                  {item.status === "processing" &&
+                    `Procesando: ${item.name}...`}
                   {item.status === "completed" && `Completado: ${item.name}`}
-                  {item.status === "error" && `Error: ${item.name} - ${item.error}`}
+                  {item.status === "error" &&
+                    `Error: ${item.name} - ${item.error}`}
                   {item.status === "pending" && `Pendiente: ${item.name}`}
                 </span>
               </div>
@@ -335,7 +376,10 @@ function App() {
             </div>
             <div className="grid gap-6">
               {results.map((result, index) => (
-                <div key={index} className="p-6 bg-white rounded-lg shadow-sm relative">
+                <div
+                  key={index}
+                  className="p-6 bg-white rounded-lg shadow-sm relative"
+                >
                   <button
                     onClick={() => removeResult(index)}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -346,9 +390,15 @@ function App() {
                   {result.status === "completed" ? (
                     <>
                       <div className="flex flex-wrap gap-4 mb-4">
-                        <p className="text-sm text-gray-600">Archivo: {result.name}</p>
-                        <p className="text-sm text-gray-600">Original: {result.originalSize} MB</p>
-                        <p className="text-sm text-gray-600">Comprimido: {result.compressedSize} MB</p>
+                        <p className="text-sm text-gray-600">
+                          Archivo: {result.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Original: {result.originalSize} MB
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Comprimido: {result.compressedSize} MB
+                        </p>
                       </div>
                       <img
                         src={result.url || "/placeholder.svg"}
@@ -377,16 +427,18 @@ function App() {
 
         {/* Marketing Section */}
         <div className="text-center mt-20">
-          <h2 className="text-4xl font-bold mb-4">Convierte y comprime tus imágenes</h2>
+          <h2 className="text-4xl font-bold mb-4">
+            Convierte y comprime tus imágenes
+          </h2>
           <p className="text-xl text-gray-600">
-            Optimice y convierta fácilmente sus imágenes al formato WebP para mejorar el rendimiento.
+            Optimice y convierta fácilmente sus imágenes al formato WebP para
+            mejorar el rendimiento.
             <span className="font-semibold"> Totalmente gratis!</span>
           </p>
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
-
+export default App;
