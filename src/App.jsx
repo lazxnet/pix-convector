@@ -188,70 +188,85 @@ function App() {
   };
 
   const processImages = async (files) => {
+    // Inicializar estado de procesamiento
     setProcessing(
       files.map((file) => ({
         name: file.name,
         status: "pending",
       }))
     );
-
-    const processedResults = [];
-
-    for (let i = 0; i < files.length; i++) {
-      try {
-        setProcessing((prev) =>
-          prev.map((item, index) =>
-            index === i ? { ...item, status: "processing" } : item
-          )
-        );
-
-        // Compress image
-        const compressedFile = await imageCompression(files[i], {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-          initialQuality: 0.7, // Asegura que siempre haya alguna compresión
-        });
-
-        // Convert to WebP
-        const webpBlob = await convertToWebP(compressedFile);
-
-        // Create object URL for preview
-        const url = URL.createObjectURL(webpBlob);
-
-        processedResults.push({
-          name: files[i].name.replace(/\.[^/.]+$/, "") + ".webp",
-          originalSize: (files[i].size / 1024 / 1024).toFixed(2),
-          compressedSize: (webpBlob.size / 1024 / 1024).toFixed(2),
-          url,
-          blob: webpBlob,
-          status: "completed",
-        });
-
-        setProcessing((prev) =>
-          prev.map((item, index) =>
-            index === i ? { ...item, status: "completed" } : item
-          )
-        );
-
-        // Actualizar resultados después de cada imagen procesada
-        setResults((prev) => [
-          ...prev,
-          processedResults[processedResults.length - 1],
-        ]);
-      } catch (error) {
-        console.error("Error processing image:", error);
-        setProcessing((prev) =>
-          prev.map((item, index) =>
-            index === i
-              ? { ...item, status: "error", error: error.message }
-              : item
-          )
-        );
-      }
-    }
-
-    setProcessing([]);
+  
+    // Crear array de promesas
+    const processingPromises = files.map((file, index) =>
+      (async () => {
+        try {
+          // Actualizar estado a processing
+          setProcessing((prev) =>
+            prev.map((item, i) => 
+              i === index ? { ...item, status: "processing" } : item
+            )
+          );
+  
+          // Compresión de imagen
+          const compressedFile = await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            initialQuality: 0.7,
+          });
+  
+          // Conversión a WebP
+          const webpBlob = await convertToWebP(compressedFile);
+          const url = URL.createObjectURL(webpBlob);
+  
+          // Crear resultado exitoso
+          return {
+            name: file.name.replace(/\.[^/.]+$/, "") + ".webp",
+            originalSize: (file.size / 1024 / 1024).toFixed(2),
+            compressedSize: (webpBlob.size / 1024 / 1024).toFixed(2),
+            url,
+            blob: webpBlob,
+            status: "completed",
+            index,
+          };
+        } catch (error) {
+          // Manejar errores
+          console.error("Error procesando imagen:", error);
+          setProcessing((prev) =>
+            prev.map((item, i) =>
+              i === index ? { 
+                ...item, 
+                status: "error", 
+                error: error.message 
+              } : item
+            )
+          );
+          return {
+            name: file.name,
+            status: "error",
+            error: error.message,
+            index,
+          };
+        }
+      })()
+    );
+  
+    // Esperar todas las promesas
+    const settledResults = await Promise.allSettled(processingPromises);
+  
+    // Procesar resultados
+    const successfulResults = settledResults
+      .filter(result => result.status === "fulfilled" && result.value.status === "completed")
+      .map(result => result.value);
+  
+    // Actualizar resultados finales
+    setResults(prev => [
+      ...prev,
+      ...successfulResults.sort((a, b) => a.index - b.index).map(({ index, ...rest }) => rest)
+    ]);
+  
+    // Limpiar procesamiento después de 1 segundo
+    setTimeout(() => setProcessing([]), 1000);
   };
 
   const removeResult = (index) => {
