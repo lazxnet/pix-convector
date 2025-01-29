@@ -271,8 +271,14 @@ function App() {
 
   const removeResult = (index) => {
     setResults((prev) => {
-      const newResults = prev.filter((_, i) => i !== index);
-      return newResults;
+      // Liberar la URL de la imagen que se eliminará
+      const resultToRemove = prev[index];
+      if (resultToRemove?.url) {
+        URL.revokeObjectURL(resultToRemove.url);
+      }
+      
+      // Filtrar los resultados manteniendo el orden
+      return prev.filter((_, i) => i !== index);
     });
   };
 
