@@ -188,6 +188,9 @@ function App() {
   };
 
   const processImages = async (files) => {
+    //Genera nombres unicos
+    const uniqueNames = new Set();
+
     // Inicializar estado de procesamiento
     setProcessing(
       files.map((file) => ({
@@ -195,33 +198,52 @@ function App() {
         status: "pending",
       }))
     );
-  
+
     // Crear array de promesas
     const processingPromises = files.map((file, index) =>
       (async () => {
         try {
           // Actualizar estado a processing
           setProcessing((prev) =>
-            prev.map((item, i) => 
+            prev.map((item, i) =>
               i === index ? { ...item, status: "processing" } : item
             )
           );
-  
-          // Compresión de imagen
+
+          //Genera un nombre base seguro
+          const originalName = file.name.replace(/\.[^/.]+$/, "");
+          const sanitizedName = originalName
+            .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s_-]/g, "")
+            .trim()
+            .replace(/\s+/g, "_");
+
+          //Crea nombres unicos
+          const createUniqueName = (base, count = 0) => {
+            const suffix = count > 0 ? `_${count}` : "";
+            const candidate = `${sanitizedName}${suffix}.webp`;
+
+            if (!uniqueNames.has(candidate)) {
+              uniqueNames.add(candidate);
+              return candidate;
+            }
+            return createUniqueName(base, count + 1);
+          };
+
+          //Compresion de imagen
           const compressedFile = await imageCompression(file, {
             maxSizeMB: 1,
             maxWidthOrHeight: 1920,
             useWebWorker: true,
             initialQuality: 0.7,
           });
-  
-          // Conversión a WebP
+
           const webpBlob = await convertToWebP(compressedFile);
+          const uniqueName = createUniqueName(sanitizedName);
           const url = URL.createObjectURL(webpBlob);
-  
-          // Crear resultado exitoso
+
           return {
-            name: file.name.replace(/\.[^/.]+$/, "") + ".webp",
+            name: uniqueName,
+            originalName: file.name,
             originalSize: (file.size / 1024 / 1024).toFixed(2),
             compressedSize: (webpBlob.size / 1024 / 1024).toFixed(2),
             url,
@@ -234,11 +256,13 @@ function App() {
           console.error("Error procesando imagen:", error);
           setProcessing((prev) =>
             prev.map((item, i) =>
-              i === index ? { 
-                ...item, 
-                status: "error", 
-                error: error.message 
-              } : item
+              i === index
+                ? {
+                    ...item,
+                    status: "error",
+                    error: error.message,
+                  }
+                : item
             )
           );
           return {
@@ -250,21 +274,26 @@ function App() {
         }
       })()
     );
-  
+
     // Esperar todas las promesas
     const settledResults = await Promise.allSettled(processingPromises);
-  
+
     // Procesar resultados
     const successfulResults = settledResults
-      .filter(result => result.status === "fulfilled" && result.value.status === "completed")
-      .map(result => result.value);
-  
+      .filter(
+        (result) =>
+          result.status === "fulfilled" && result.value.status === "completed"
+      )
+      .map((result) => result.value);
+
     // Actualizar resultados finales
-    setResults(prev => [
+    setResults((prev) => [
       ...prev,
-      ...successfulResults.sort((a, b) => a.index - b.index).map(({ index, ...rest }) => rest)
+      ...successfulResults
+        .sort((a, b) => a.index - b.index)
+        .map(({ index, ...rest }) => rest),
     ]);
-  
+
     // Limpiar procesamiento después de 1 segundo
     setTimeout(() => setProcessing([]), 1000);
   };
@@ -276,7 +305,7 @@ function App() {
       if (resultToRemove?.url) {
         URL.revokeObjectURL(resultToRemove.url);
       }
-      
+
       // Filtrar los resultados manteniendo el orden
       return prev.filter((_, i) => i !== index);
     });
@@ -292,7 +321,7 @@ function App() {
     });
 
     const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, "compressed_images.zip");
+    saveAs(content, "imágenes_comprimidas.zip");
   };
 
   return (
