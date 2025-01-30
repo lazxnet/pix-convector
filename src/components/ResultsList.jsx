@@ -8,7 +8,7 @@ export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, rem
         {hasProcessedImages && (
           <button
             onClick={() => downloadAllAsZip(results)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center translate-x-1 gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
             <ArchiveIcon />
             Descargar todo como ZIP
