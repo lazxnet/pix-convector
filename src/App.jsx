@@ -16,6 +16,18 @@ export default function App() {
     setHasProcessedImages(processedImages.length > 0)
   }, [results])
 
+  useEffect(() => {
+    const logUserIp = async () => {
+      try {
+        await fetch("http://localhost:3001/api/log-ip")
+      } catch (error) {
+        console.error("Error logging IP:", error)
+      }
+    }
+
+    logUserIp()
+  }, [])
+
   const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragging(true)
