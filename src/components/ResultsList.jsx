@@ -2,13 +2,20 @@ import { DownloadIcon, XCircle, ArchiveIcon } from "../util/Icons"
 
 const logAction = async (action) => {
   try {
-    await fetch("/api/log-action", {
+    const response = await fetch("/api/log-action", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ action }),
     })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data
   } catch (error) {
     console.error("Error logging action:", error)
   }
