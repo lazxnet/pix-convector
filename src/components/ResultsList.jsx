@@ -2,7 +2,7 @@ import { DownloadIcon, XCircle, ArchiveIcon } from "../util/Icons"
 
 const logAction = async (action) => {
   try {
-    await fetch("http://localhost:3001/api/log-action", {
+    await fetch("/api/log-action", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,4 +80,3 @@ export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, rem
     </div>
   )
 }
-

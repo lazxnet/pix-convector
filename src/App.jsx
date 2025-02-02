@@ -7,7 +7,7 @@ import { ResultsList } from "./components/ResultsList"
 
 const logAction = async (action) => {
   try {
-    await fetch("http://localhost:3001/api/log-action", {
+    await fetch("/api/log-action", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
