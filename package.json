@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"node server.js\"",
-    "build": "vite build",
+    "build": "npm install rollup && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
