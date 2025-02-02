@@ -6,27 +6,25 @@ const app = express()
 const port = 3001
 
 app.use(cors())
+app.use(express.json())
 
 function getLocalIpAddress() {
   const nets = networkInterfaces()
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
-      // Omitir direcciones internas y que no sean IPv4 (es decir, 127.0.0.1)
       if (net.family === "IPv4" && !net.internal) {
         return net.address
       }
     }
   }
-  return "127.0.0.1" // Recurrir a localhost si no se encuentra otra IP
+  return "127.0.0.1"
 }
 
-
-app.get("/api/log-ip", (req, res) => {
+app.post("/api/log-action", (req, res) => {
   const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress
-  const localIp = getLocalIpAddress()
-  console.log(`Client IP: ${clientIp}`)
-  console.log(`Server Local IP: ${localIp}`)
-  res.json({ clientIp, localIp })
+  const { action } = req.body
+  console.log(`Client IP: ${clientIp}, Action: ${action}`)
+  res.json({ message: "Action logged" })
 })
 
 app.listen(port, () => {
