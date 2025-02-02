@@ -20,6 +20,7 @@ function getLocalIpAddress() {
   return "127.0.0.1" // Recurrir a localhost si no se encuentra otra IP
 }
 
+
 app.get("/api/log-ip", (req, res) => {
   const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress
   const localIp = getLocalIpAddress()
