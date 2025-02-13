@@ -1,13 +1,38 @@
 import { DownloadIcon, XCircle, ArchiveIcon } from "../util/Icons"
 
+const logAction = async (action) => {
+  try {
+    const response = await fetch("/api/log-action", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error("Error logging action:", error)
+  }
+}
+
 export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, removeResult }) {
+  const handleDownload = (name) => {
+    logAction(`download_single_${name}`)
+  }
+
   return (
     <div className="mt-8 space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-semibold">Imágenes procesadas</h3>
         {hasProcessedImages && (
           <button
-            onClick={() => downloadAllAsZip(results)}
+            onClick={downloadAllAsZip}
             className="inline-flex items-center translate-x-1 gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
             <ArchiveIcon />
@@ -36,6 +61,7 @@ export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, rem
                   <a
                     href={result.url}
                     download={result.name}
+                    onClick={() => handleDownload(result.name)}
                     className="inline-flex items-center translate-y-20 gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     <DownloadIcon />
@@ -61,4 +87,3 @@ export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, rem
     </div>
   )
 }
-

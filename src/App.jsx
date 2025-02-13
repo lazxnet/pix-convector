@@ -5,6 +5,20 @@ import { FileUpload } from "./components/FileUpload"
 import { ProcessingList } from "./components/ProcessingList"
 import { ResultsList } from "./components/ResultsList"
 
+const logAction = async (action) => {
+  try {
+    await fetch("/api/log-action", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action }),
+    })
+  } catch (error) {
+    console.error("Error logging action:", error)
+  }
+}
+
 export default function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [processing, setProcessing] = useState([])
@@ -15,6 +29,10 @@ export default function App() {
     const processedImages = results.filter((result) => result.status === "completed")
     setHasProcessedImages(processedImages.length > 0)
   }, [results])
+
+  useEffect(() => {
+    logAction("page_load")
+  }, [])
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -33,13 +51,17 @@ export default function App() {
     const files = Array.from(e.dataTransfer.files).slice(0, 20)
     const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024)
     if (validFiles.length !== files.length) alert("Algunos archivos superan 10MB")
-    if (validFiles.length > 0) await processImages(validFiles, setProcessing, setResults)
+    if (validFiles.length > 0) {
+      await processImages(validFiles, setProcessing, setResults)
+      logAction(`drop_files_${validFiles.length}`)
+    }
   }
 
   const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files).slice(0, 20)
     if (files.length > 0) {
       await processImages(files, setProcessing, setResults)
+      logAction(`select_files_${files.length}`)
     }
   }
 
@@ -49,8 +71,14 @@ export default function App() {
       if (resultToRemove?.url) {
         URL.revokeObjectURL(resultToRemove.url)
       }
+      logAction("remove_result")
       return prev.filter((_, i) => i !== index)
     })
+  }
+
+  const handleDownloadAllZip = async () => {
+    await downloadAllAsZip(results)
+    logAction("download_all_zip")
   }
 
   return (
@@ -71,7 +99,7 @@ export default function App() {
           <ResultsList
             results={results}
             hasProcessedImages={hasProcessedImages}
-            downloadAllAsZip={downloadAllAsZip}
+            downloadAllAsZip={handleDownloadAllZip}
             removeResult={removeResult}
           />
         )}
@@ -87,4 +115,3 @@ export default function App() {
     </div>
   )
 }
-

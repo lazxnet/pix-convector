@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "concurrently \"vite\" \"node server.js\"",
+    "build": "npm install rollup && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -15,6 +15,8 @@
     "@radix-ui/react-toast": "^1.2.4",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.17.0",
     "jimp": "^1.6.0",
@@ -30,6 +32,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
