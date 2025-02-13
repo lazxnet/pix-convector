@@ -32,12 +32,12 @@ Puedes probar la aplicación en vivo aquí: [PixConvector Demo](https://pix-conv
 ## 💻 Instalación Local
 
 1. Clona el repositorio:
-\`\`\`bash
+```bash
 git clone https://github.com/tu-usuario/pix-convector.git
 cd pix-convector
 npm install
 npm run dev
-\`\`\`
+```
 
 ## ⚙️ Limitaciones
 
