@@ -25,19 +25,19 @@ PixConvector es una aplicación web que permite convertir y comprimir imágenes 
 - tiff.js
 - Express (para desarrollo)
 
-## 🚀 Demo
+## 🚀 Prueba
 
-Puedes probar la aplicación en vivo aquí: [PixConvector Demo](https://pix-convector.vercel.app)
+Puedes probar la aplicación en vivo aquí: [PixConvector](https://pix-convector.vercel.app)
 
 ## 💻 Instalación Local
 
 1. Clona el repositorio:
-\`\`\`bash
+```bash
 git clone https://github.com/tu-usuario/pix-convector.git
 cd pix-convector
 npm install
 npm run dev
-\`\`\`
+```
 
 ## ⚙️ Limitaciones
 
