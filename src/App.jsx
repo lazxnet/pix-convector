@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { processImages, downloadAllAsZip } from "./util/imageProcessing"
 import { Header } from "./components/Header"
@@ -115,3 +117,4 @@ export default function App() {
     </div>
   )
 }
+
