@@ -6,14 +6,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     assetsDir: "assets",
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
-    },
   },
-  esbuild: {
-    jsxInject: `import React from 'react'`,
-  },
+  // Eliminamos cualquier configuración de esbuild que pudiera estar causando problemas
 })
 
