@@ -76,7 +76,7 @@ export function FileUpload({
     }
 
     if (validFiles.length > 0) {
-      handleDrop({ dataTransfer: { files: validFiles } });
+      handleDrop(validFiles);
     } else if (files.length > 0) {
       setValidationError("Ninguno de los archivos soltados es válido.");
     }
