@@ -9,7 +9,7 @@ import { ResultsList } from "./components/ResultsList"
 
 const logAction = async (action) => {
   try {
-    await fetch("/api/log-action", {
+    await fetch("https://pix-convector-api-security.onrender.com/api/log-action", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

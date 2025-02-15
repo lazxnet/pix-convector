@@ -25,7 +25,7 @@ export function FileUpload({
     );
 
     try {
-      const response = await fetch("/api/validate-file", {
+      const response = await fetch("https://pix-convector-api-security.onrender.com/api/validate-file", {
         method: "POST",
         body: formData,
       });
