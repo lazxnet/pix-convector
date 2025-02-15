@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { processImages, downloadAllAsZip } from "./util/imageProcessing"
 import { Header } from "./components/Header"
@@ -44,11 +46,11 @@ export default function App() {
     setIsDragging(false)
   }
 
-  const handleDrop = async (e) => {
-    e.preventDefault()
-    setIsDragging(false)
+  const handleDrop = async (files) => {
+    //e.preventDefault()
+    //setIsDragging(false)
 
-    const files = Array.from(e.dataTransfer.files).slice(0, 20)
+    //const files = Array.from(e.dataTransfer.files).slice(0, 20)
     const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024)
     if (validFiles.length !== files.length) alert("Algunos archivos superan 10MB")
     if (validFiles.length > 0) {
@@ -57,8 +59,8 @@ export default function App() {
     }
   }
 
-  const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 20)
+  const handleFileSelect = async (files) => {
+    //const files = Array.from(e.target.files).slice(0, 20)
     if (files.length > 0) {
       await processImages(files, setProcessing, setResults)
       logAction(`select_files_${files.length}`)
@@ -115,3 +117,4 @@ export default function App() {
     </div>
   )
 }
+
