@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { CloudIcon } from "../util/Icons"
+import { useState } from "react";
+import { CloudIcon } from "../util/Icons";
 
 export function FileUpload({
   isDragging,
@@ -9,71 +9,78 @@ export function FileUpload({
   handleDrop,
   handleFileSelect,
 }) {
-  const [validationError, setValidationError] = useState(null)
+  const [validationError, setValidationError] = useState(null);
 
   const validateFile = async (file) => {
-    const formData = new FormData()
-    formData.append("file", file)
+    const formData = new FormData();
+    formData.append("file", file);
 
-    console.log("Validando archivo:", file.name, "Tipo:", file.type, "Tamaño:", file.size)
+    console.log(
+      "Validando archivo:",
+      file.name,
+      "Tipo:",
+      file.type,
+      "Tamaño:",
+      file.size
+    );
 
     try {
       const response = await fetch("/api/validate-file", {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const data = await response.json()
-      console.log("Respuesta del servidor:", data)
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Error desconocido al validar el archivo")
+        throw new Error(
+          data.error || "Error desconocido al validar el archivo"
+        );
       }
 
-      return data.valid
+      return data.valid;
     } catch (error) {
-      console.error("Error de validación:", error)
-      setValidationError(error.message)
-      return false
+      console.error("Error de validación:", error);
+      setValidationError(error.message);
+      return false;
     }
-  }
+  };
 
   const handleFileSelectWithValidation = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 20)
-    const validFiles = []
+    const files = Array.from(e.target.files).slice(0, 20);
+    const validFiles = [];
 
     for (const file of files) {
       if (await validateFile(file)) {
-        validFiles.push(file)
+        validFiles.push(file);
       }
     }
 
     if (validFiles.length > 0) {
-      handleFileSelect({ target: { files: validFiles } })
-    } else if (files.length > 0) {
-      setValidationError("Ninguno de los archivos seleccionados es válido.")
+      handleFileSelect(validFiles);
     }
-  }
+  };
 
   const handleDropWithValidation = async (e) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files).slice(0, 20)
-    const validFiles = []
+    const files = Array.from(e.dataTransfer.files).slice(0, 20);
+    const validFiles = [];
 
     for (const file of files) {
       if (await validateFile(file)) {
-        validFiles.push(file)
+        validFiles.push(file);
       }
     }
 
     if (validFiles.length > 0) {
-      handleDrop({ dataTransfer: { files: validFiles } })
+      handleDrop({ dataTransfer: { files: validFiles } });
     } else if (files.length > 0) {
-      setValidationError("Ninguno de los archivos soltados es válido.")
+      setValidationError("Ninguno de los archivos soltados es válido.");
     }
-  }
+  };
 
   return (
     <div
@@ -91,11 +98,21 @@ export function FileUpload({
           <span className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
             SUBIR ARCHIVOS
           </span>
-          <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileSelectWithValidation} />
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelectWithValidation}
+          />
         </label>
-        <p className="text-sm text-gray-500 mt-4">Máximo de 20 imágenes a la vez de hasta 10 mb cada una</p>
-        {validationError && <p className="text-red-500 mt-2">{validationError}</p>}
+        <p className="text-sm text-gray-500 mt-4">
+          Máximo de 20 imágenes a la vez de hasta 10 mb cada una
+        </p>
+        {validationError && (
+          <p className="text-red-500 mt-2">{validationError}</p>
+        )}
       </div>
     </div>
-  )
+  );
 }
