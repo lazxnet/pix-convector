@@ -26,6 +26,7 @@ export const convertToWebP = async (blob) => {
 }
 
 export const processImages = async (files, setProcessing, setResults) => {
+  
   const uniqueNames = new Set()
 
   setProcessing(
