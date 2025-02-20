@@ -62,8 +62,7 @@ export function ResultsList({ results, hasProcessedImages, downloadAllAsZip, rem
                     href={result.url}
                     download={result.name}
                     onClick={() => handleDownload(result.name)}
-                    className="inline-flex items-center translate-y-20 gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-                  >
+                    className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors mt-8"                  >
                     <DownloadIcon />
                     Descargar WebP
                   </a>

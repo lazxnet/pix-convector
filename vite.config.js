@@ -6,10 +6,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://pix-convector-api-security.onrender.com", // Elimina el puerto
+        target: "https://pix-convector-api-security.onrender.com",
         changeOrigin: true,
         secure: true, // Debe ser true para Render
-        //rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true
       }
     }
