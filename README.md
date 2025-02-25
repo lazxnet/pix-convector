@@ -27,7 +27,7 @@ PixConvector es una aplicación web que permite convertir y comprimir imágenes 
 
 ## 🚀 Prueba
 
-Puedes probar la aplicación en vivo aquí: [PixConvector](https://pix-convector.vercel.app)
+Puedes probar la aplicación aquí: [PixConvector](https://pix-convector.vercel.app)
 
 ## 💻 Instalación Local
 
