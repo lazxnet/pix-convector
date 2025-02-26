@@ -33,7 +33,7 @@ Puedes probar la aplicación aquí: [PixConvector](https://pix-convector.vercel.
 
 1. Clona el repositorio:
 ```bash
-git clone https://github.com/tu-usuario/pix-convector.git
+git clone https://github.com/lazxnet/pix-convector.git
 cd pix-convector
 npm install
 npm run dev
