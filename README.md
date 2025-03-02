@@ -23,7 +23,7 @@ PixConvector es una aplicación web que permite convertir y comprimir imágenes 
 - JSZip
 - heic2any
 - tiff.js
-- Express (para desarrollo)
+- Express (en un servidor externo para validad archivos no desados)
 
 ## 🚀 Prueba
 
